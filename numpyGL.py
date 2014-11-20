@@ -144,8 +144,12 @@ def _test():
     import doctest
     doctest.testmod()
 #####################################
+import time
+t0 = time.time()
 def callback(dt):
-    pass
+    global t0
+    print time.time()-t0
+    t0 = time.time()
 
 pyglet.clock.schedule(callback)
 pyglet.app.run()
