@@ -74,8 +74,9 @@ def on_draw():
 	"""Glut init function."""
 #         texture = RandomTexture( 256, 256 )
         N_X, N_Y = 256, 256
-        tmpList = [ random.randint(0, 255) \
-			for i in range( 3 * N_X * N_Y ) ]
+#         tmpList = [ random.randint(0, 255) \
+# 			for i in range( 3 * N_X * N_Y ) ]
+        tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
 	gl.glClearColor ( 0, 0, 0, 0 )
 	gl.glShadeModel( gl.GL_SMOOTH )
 	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
@@ -125,7 +126,7 @@ import time
 t0 = time.time()
 def callback(dt):
     global t0
-    print time.time()-t0
+    print 'FPS=', 1./(time.time()-t0)
     t0 = time.time()
 
 pyglet.clock.schedule(callback)
