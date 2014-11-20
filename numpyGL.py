@@ -65,32 +65,6 @@ def on_resize(width, height):
 win_0.on_resize = on_resize
 win_0.set_visible(True)
 
-
-class RandomTexture( object ):
-	"""Image with random RGB values."""
-	def __init__( self, xSizeP, ySizeP ):
-		self.xSize, self.ySize = xSizeP, ySizeP
-		tmpList = [ random.randint(0, 255) \
-			for i in range( 3 * self.xSize * self.ySize ) ]
-		self.textureArray = array.array( 'B', tmpList )
-		self.rawReference = self.textureArray.tostring( )
-
-def display(  ):
-	"""Glut display function."""
-	gl.glClear( gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT )
-	gl.glColor3f( 1, 1, 1 )
-	gl.glBegin( gl.GL_QUADS )
-	gl.glTexCoord2f( 0, 1 )
-	gl.glVertex3f( -0.5, 0.5, 0 )
-	gl.glTexCoord2f( 0, 0 )
-	gl.glVertex3f( -0.5, -0.5, 0 )
-	gl.glTexCoord2f( 1, 0 )
-	gl.glVertex3f( 0.5, -0.5, 0 )
-	gl.glTexCoord2f( 1, 1 )
-	gl.glVertex3f( 0.5, 0.5, 0 )
-	gl.glEnd(  )
-	glut.glutSwapBuffers (  )
-
 @win_0.event
 def on_resize(width, height):
     print 'The window was resized to %dx%d' % (width, height)
@@ -98,15 +72,18 @@ def on_resize(width, height):
 @win_0.event
 def on_draw():
 	"""Glut init function."""
-        texture = RandomTexture( 256, 256 )
+#         texture = RandomTexture( 256, 256 )
+        N_X, N_Y = 256, 256
+        tmpList = [ random.randint(0, 255) \
+			for i in range( 3 * N_X * N_Y ) ]
 	gl.glClearColor ( 0, 0, 0, 0 )
 	gl.glShadeModel( gl.GL_SMOOTH )
 	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
 	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT )
 	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR )
 	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR )
-	gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, 3, texture.xSize, texture.ySize, 0,
-				 gl.GL_RGB, gl.GL_UNSIGNED_BYTE, texture.rawReference )
+	gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, 3, N_X, N_Y, 0,
+				 gl.GL_RGB, gl.GL_UNSIGNED_BYTE, array.array( 'B', tmpList ).tostring() )
 	gl.glEnable( gl.GL_TEXTURE_2D )
 
 	"""Glut display function."""
