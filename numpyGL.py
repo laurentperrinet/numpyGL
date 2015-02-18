@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# 
+#
 # Load a texture from an image file and map it to a quad.
-# 
+#
 # Copyright (C) 2007  "Peter Roesch" <Peter.Roesch@fh-augsburg.de>
 #
 # This code is licensed under the PyOpenGL License.
@@ -18,7 +18,7 @@ import random
 # except:
 #   print ''' Error PyOpenGL not installed properly !!'''
 #   sys.exit(  )
-# 
+#
 do_fs = True
 do_fs = False
 # Window information
@@ -65,10 +65,10 @@ def on_resize(width, height):
 win_0.on_resize = on_resize
 win_0.set_visible(True)
 
-@win_0.event
-def on_resize(width, height):
-    print 'The window was resized to %dx%d' % (width, height)
-
+# @win_0.event
+# def on_resize(width, height):
+#     print 'The window was resized to %dx%d' % (width, height)
+#
 @win_0.event
 def on_draw():
 	"""Glut init function."""
