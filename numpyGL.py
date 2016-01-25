@@ -12,6 +12,11 @@ import numpy as np
 import sys
 import array
 import random
+
+from ctypes import (
+    byref, c_char, c_float, c_char_p, c_int, cast, create_string_buffer, pointer,
+    POINTER
+)
 #
 do_fs = True
 do_fs = False
@@ -34,7 +39,7 @@ import pyglet.gl as gl
 from pyglet.gl.glu import gluLookAt
 from pyglet.window import Window
 
-window = Window(visible=False, resizable=True, fullscreen=do_fs)
+window = Window(visible=True, resizable=True, fullscreen=do_fs)
 
 @window.event
 def on_draw():
@@ -48,20 +53,24 @@ def on_draw():
 @window.event
 def on_draw():
     """Glut init function."""
-#         texture = RandomTexture( 256, 256 )
     N_X, N_Y = 256, 256
-    N_X, N_Y = screen.height, screen.width
+    #N_X, N_Y = screen.height, screen.width
 #         tmpList = [ random.randint(0, 255) \
 #             for i in range( 3 * N_X * N_Y ) ]
-    tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).astype('uint8').tolist()
+#     tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
+#     pix = array.array( 'B', tmpList ).tostring()
+
+    pix = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
+    pix = (gl.GLubyte * len(pix))(*pix)
+
     gl.glClearColor ( 0, 0, 0, 0 )
     gl.glShadeModel( gl.GL_SMOOTH )
-    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
-    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT )
-    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR )
-    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR )
-    gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, 3, N_X, N_Y, 0,
-                 gl.GL_RGB, gl.GL_UNSIGNED_BYTE, array.array( 'B', tmpList ).tostring() )
+#     gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
+#     gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT )
+#     gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR )
+#     gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR )
+    gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, gl.GL_LUMINANCE, N_X, N_Y, 0,
+                 gl.GL_LUMINANCE, gl.GL_UNSIGNED_BYTE, pix )
     gl.glEnable( gl.GL_TEXTURE_2D )
 
     """Glut display function."""
@@ -78,16 +87,29 @@ def on_draw():
     gl.glVertex3f( 1.0, 1.0, 0 )
     gl.glEnd(  )
 #     glut.glutSwapBuffers (  )
-
-# @window.event
-# def on_key_press(symbol, modifiers):
-#     if symbol == pyglet.window.key.TAB:
-#         if window.fullscreen:
-#             window.set_fullscreen(False)
-#             window.set_location(screen.width/3, screen.height/3)
-#         else:
-#             window.set_fullscreen(True)
+#     c_float_p = POINTER(c_float)
 # 
+#     my_texture = np.random.uniform(0,1,(512, 512)).astype(np.float32) # generate random noise as test texture
+#     my_texture_p = my_texture.ctypes.data_as(c_float_p)
+# 
+#     my_texture_id = gl.GLuint() # generate 1 component texture (let's say ALPHA)
+#     gl.glGenTextures(1, byref(my_texture_id))
+#     gl.glEnable(gl.GL_TEXTURE_2D)
+#     gl.glBindTexture(gl.GL_TEXTURE_2D, my_texture_id.value)
+#     gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_ALPHA, 512, 512, 0,
+#                     gl.GL_ALPHA, gl.GL_FLOAT, my_texture_p)
+# 
+
+
+@window.event
+def on_key_press(symbol, modifiers):
+    if symbol == pyglet.window.key.TAB:
+        if window.fullscreen:
+            window.set_fullscreen(False)
+            window.set_location(screen.width/3, screen.height/3)
+        else:
+            window.set_fullscreen(True)
+
 def _test():
     import doctest
     doctest.testmod()
