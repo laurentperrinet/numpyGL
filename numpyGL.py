@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Load a texture from an image file and map it to a quad.
 #
@@ -7,76 +7,53 @@
 # This code is licensed under the PyOpenGL License.
 # Details are given in the file license.txt included in this distribution.
 
+import numpy as np
+
 import sys
 import array
 import random
-
-# try:
-#   import OpenGL.GLUT as glut
-#   import OpenGL.GL as gl
-#   import OpenGL.GLU as glu
-# except:
-#   print ''' Error PyOpenGL not installed properly !!'''
-#   sys.exit(  )
 #
 do_fs = True
 do_fs = False
 # Window information
-# ------------------
+# # ------------------
 import pyglet
 platform = pyglet.window.get_platform()
-# print "platform" , platform
+print("platform" , platform)
 display = platform.get_default_display()
-# print "display" , display
+print("display" , display)
 screens = display.get_screens()
-# print "screens" , screens
+print("screens" , screens)
 for i, screen in enumerate(screens):
     print('Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y))
 N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
 # assert N_screen == 1 # we should be running on one screen only
 
-from pyglet.window import Window
-
-if do_fs:
-    win_0 = Window(screen=screens[0], fullscreen=True, resizable=True)
-else:
-    win_0 = Window(width=screen.width*2/3, height=screen.height*2/3, screen=screens[0], fullscreen=False, resizable=True)
-    win_0.set_location(screen.width/3, screen.height/3)
 import pyglet.gl as gl
 from pyglet.gl.glu import gluLookAt
-import numpy as np
-def on_resize(width, height):
-    gl.glViewport(0, 0, width, height)
-    gl.glEnable(gl.GL_BLEND)
-    gl.glShadeModel(gl.GL_SMOOTH) #
-    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE)
-    gl.glDepthFunc(gl.GL_LEQUAL)
-    gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)# gl.GL_FASTEST)# gl.GL_NICEST)# GL_DONT_CARE)#
-    gl.glDisable(gl.GL_DEPTH_TEST)
-    gl.glDisable(gl.GL_LINE_SMOOTH)
-    gl.glColor3f(1.0, 1.0, 1.0)
-    gl.glDisable(gl.GL_CLIP_PLANE0)
-    gl.glDisable(gl.GL_CLIP_PLANE1)
-    gl.glDisable(gl.GL_CLIP_PLANE2)
-    gl.glDisable(gl.GL_CLIP_PLANE3)
-    return pyglet.event.EVENT_HANDLED
+from pyglet.window import Window
 
-win_0.on_resize = on_resize
-win_0.set_visible(True)
+window = Window(visible=False, resizable=True, fullscreen=do_fs)
 
-# @win_0.event
-# def on_resize(width, height):
-#     print 'The window was resized to %dx%d' % (width, height)
-#
-@win_0.event
+@window.event
+def on_draw():
+    background.blit_tiled(0, 0, 0, window.width, window.height)
+    img.blit(window.width // 2, window.height // 2, 0)
+
+    window.width = img.width
+    window.height = img.height
+    window.set_visible()
+
+@window.event
 def on_draw():
     """Glut init function."""
 #         texture = RandomTexture( 256, 256 )
     N_X, N_Y = 256, 256
+    N_X, N_Y = screen.height, screen.width
 #         tmpList = [ random.randint(0, 255) \
 #             for i in range( 3 * N_X * N_Y ) ]
-    tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
+    tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).astype('uint8').tolist()
     gl.glClearColor ( 0, 0, 0, 0 )
     gl.glShadeModel( gl.GL_SMOOTH )
     gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
@@ -102,22 +79,15 @@ def on_draw():
     gl.glEnd(  )
 #     glut.glutSwapBuffers (  )
 
-
-@win_0.event
-def on_key_press(symbol, modifiers):
-    if symbol == pyglet.window.key.TAB:
-        if win_0.fullscreen:
-            win_0.set_fullscreen(False)
-            win_0.set_location(screen.width/3, screen.height/3)
-        else:
-            win_0.set_fullscreen(True)
-    elif symbol == pyglet.window.key.SPACE:
-        do_firstperson = not(do_firstperson)
-    elif symbol == pyglet.window.key.LEFT:
-        s.rot_heading_fp += s.inc_heading_fp
-    elif symbol == pyglet.window.key.RIGHT:
-        s.rot_heading_fp -= s.inc_heading_fp
-
+# @window.event
+# def on_key_press(symbol, modifiers):
+#     if symbol == pyglet.window.key.TAB:
+#         if window.fullscreen:
+#             window.set_fullscreen(False)
+#             window.set_location(screen.width/3, screen.height/3)
+#         else:
+#             window.set_fullscreen(True)
+# 
 def _test():
     import doctest
     doctest.testmod()
