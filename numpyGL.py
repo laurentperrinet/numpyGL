@@ -25,16 +25,16 @@ do_fs = False
 # ------------------
 import pyglet
 platform = pyglet.window.get_platform()
-print "platform" , platform
+# print "platform" , platform
 display = platform.get_default_display()
-print "display" , display
+# print "display" , display
 screens = display.get_screens()
-print "screens" , screens
+# print "screens" , screens
 for i, screen in enumerate(screens):
-    print 'Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y)
+    print('Screen %d: %dx%d at (%d,%d)' % (i, screen.width, screen.height, screen.x, screen.y))
 N_screen = len(screens) # number of screens
 N_screen = 1# len(screens) # number of screens
-assert N_screen == 1 # we should be running on one screen only
+# assert N_screen == 1 # we should be running on one screen only
 
 from pyglet.window import Window
 
@@ -71,36 +71,36 @@ win_0.set_visible(True)
 #
 @win_0.event
 def on_draw():
-	"""Glut init function."""
+    """Glut init function."""
 #         texture = RandomTexture( 256, 256 )
-        N_X, N_Y = 256, 256
+    N_X, N_Y = 256, 256
 #         tmpList = [ random.randint(0, 255) \
-# 			for i in range( 3 * N_X * N_Y ) ]
-        tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
-	gl.glClearColor ( 0, 0, 0, 0 )
-	gl.glShadeModel( gl.GL_SMOOTH )
-	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
-	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT )
-	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR )
-	gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR )
-	gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, 3, N_X, N_Y, 0,
-				 gl.GL_RGB, gl.GL_UNSIGNED_BYTE, array.array( 'B', tmpList ).tostring() )
-	gl.glEnable( gl.GL_TEXTURE_2D )
+#             for i in range( 3 * N_X * N_Y ) ]
+    tmpList = np.random.randint(0, high=255, size=3 * N_X * N_Y).tolist()
+    gl.glClearColor ( 0, 0, 0, 0 )
+    gl.glShadeModel( gl.GL_SMOOTH )
+    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT )
+    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT )
+    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR )
+    gl.glTexParameterf( gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR )
+    gl.glTexImage2D( gl.GL_TEXTURE_2D, 0, 3, N_X, N_Y, 0,
+                 gl.GL_RGB, gl.GL_UNSIGNED_BYTE, array.array( 'B', tmpList ).tostring() )
+    gl.glEnable( gl.GL_TEXTURE_2D )
 
-	"""Glut display function."""
-	gl.glClear( gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT )
-	gl.glColor3f( 1, 1, 1 )
-	gl.glBegin( gl.GL_QUADS )
-	gl.glTexCoord2f( 0, 1 )
-	gl.glVertex3f( -1.0, 1.0, 0 )
-	gl.glTexCoord2f( 0, 0 )
-	gl.glVertex3f( -1.0, -1.0, 0 )
-	gl.glTexCoord2f( 1, 0 )
-	gl.glVertex3f( 1.0, -1.0, 0 )
-	gl.glTexCoord2f( 1, 1 )
-	gl.glVertex3f( 1.0, 1.0, 0 )
-	gl.glEnd(  )
-# 	glut.glutSwapBuffers (  )
+    """Glut display function."""
+    gl.glClear( gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT )
+    gl.glColor3f( 1, 1, 1 )
+    gl.glBegin( gl.GL_QUADS )
+    gl.glTexCoord2f( 0, 1 )
+    gl.glVertex3f( -1.0, 1.0, 0 )
+    gl.glTexCoord2f( 0, 0 )
+    gl.glVertex3f( -1.0, -1.0, 0 )
+    gl.glTexCoord2f( 1, 0 )
+    gl.glVertex3f( 1.0, -1.0, 0 )
+    gl.glTexCoord2f( 1, 1 )
+    gl.glVertex3f( 1.0, 1.0, 0 )
+    gl.glEnd(  )
+#     glut.glutSwapBuffers (  )
 
 
 @win_0.event
@@ -126,7 +126,7 @@ import time
 t0 = time.time()
 def callback(dt):
     global t0
-    print 'FPS=', 1./(time.time()-t0)
+    print('FPS=', 1./(time.time()-t0))
     t0 = time.time()
 
 pyglet.clock.schedule(callback)
