@@ -65,6 +65,11 @@ class Canvas(app.Canvas):
         self.fullscreen = fullscreen
         self.show()
 
+    def on_key_press(self, event):
+        if event.key == 'F':
+            fullscreen = not self.fullscreen
+            self.fullscreen = fullscreen
+
     def on_resize(self, event):
         width, height = event.physical_size
         gloo.set_viewport(0, 0, width, height)
