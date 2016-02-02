@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 
-A minimal example of a routine to show a numpy array on a screen.
+A simple framework to display numpy array on a screen. And only that.
 
 """
+from __future__ import division, print_function, absolute_import
+__author__ = "Laurent Perrinet INT - CNRS"
+__version__ = '0.1'
+__licence__ = 'BSD licence'
 
 import numpy as np
 import time
