@@ -5,12 +5,10 @@ The goal of this package is to provide with a way to display numpy arrays on a d
 
 ## Installation
 
-	pip install numpyGL
+	pip3 install numpyGL
 
 ## Usage
 
-	from numpyGL import display
-	d = display()
-	d.show(np.random.rand(d.shape))
+	from numpyGL import Canvas
 
 
