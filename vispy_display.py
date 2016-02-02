@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 
-The client side.
+A minimal example of a routine to show a numpy array on a screen.
 
 """
 
 import numpy as np
 import time
-import cv2
 
 # VISUALIZATION ROUTINES
 from vispy import app
@@ -36,14 +35,6 @@ fragment = """
     }
 """
 
-
-def checkerboard(grid_num=8, grid_size=32):
-    row_even = grid_num // 2 * [0, 1]
-    row_odd = grid_num // 2 * [1, 0]
-    Z = np.row_stack(grid_num // 2 * (row_even, row_odd)).astype(np.uint8)
-    return 255 * Z.repeat(grid_size, axis=0).repeat(grid_size, axis=1)
-
-
 class Client(app.Canvas):
     """
     The client initializes and updates the display where stimulations and
@@ -51,8 +42,10 @@ class Client(app.Canvas):
     """
     def __init__(self, timeline):
         self.timeline = timeline
+#         app.use_app('Glfw')
         app.use_app('pyglet')
-        app.Canvas.__init__(self, size=(512, 512), keys='interactive', title='toto', fullscreen=True)#, size=(1280, 960))#
+        #app.Canvas.__init__(self, keys='interactive', title='welcome to numpyGL', fullscreen=True)#, size=(1280, 960))#, size=(512, 512)
+        super(Client, self).__init__(fullscreen=True)
         width, height = self.physical_size
         self.program = gloo.Program(vertex, fragment, count=4)
         self.program['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
@@ -62,6 +55,7 @@ class Client(app.Canvas):
         gloo.set_viewport(0, 0, width, height)
         self._timer = app.Timer('auto', connect=self.on_timer, start=True)
         self.start = time.time()
+        self.fullscreen = True
         self.show()
 
     def on_resize(self, event):
@@ -83,10 +77,7 @@ class Client(app.Canvas):
 
 if __name__ == '__main__':
 
-    import cv2
-    import numpy as np
-
-    fps = 100
-    screen = Client(timeline=np.linspace(0, 3., 3.*fps))
-    app.run()
+    fps, T = 100, 10
+    screen = Client(timeline=np.linspace(0, T, T*fps))
+    screen.app.run()
 
