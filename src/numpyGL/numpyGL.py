@@ -18,6 +18,8 @@ import time
 
 from vispy import app
 from vispy import gloo
+from vispy import visuals
+from vispy.visuals.transforms import STTransform
 #--------------------------------------------------------------------------
 # A simple texture quad
 data = np.zeros(4, dtype=[('a_position', np.float32, 2),
@@ -57,41 +59,54 @@ class Canvas(app.Canvas):
     """
     def __init__(self, stimulus, 
             fullscreen=True, interpolation='nearest', #'linear',
+            vsync=True, #False,
             timeline=np.linspace(0, 4, 4*30), keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
         self.timeline = timeline
         app.use_app('pyglet')
-        super(Canvas, self).__init__(keys=keys, title=title, size = (H, W))
-        width, height = self.physical_size
-        self.program = gloo.Program(vertex, fragment, count=4)
-        self.program.bind(gloo.VertexBuffer(data))
-        self.program['texture'] = gloo.Texture2D(self.stimulus(t=0.), interpolation=interpolation)
-        gloo.set_viewport(0, 0, width, height)
+        super(Canvas, self).__init__(keys=keys, title=title, size = (H, W), vsync=vsync)
+#         width, height = self.physical_size
+#         self.program = gloo.Program(vertex, fragment, count=4)
+#         self.program.bind(gloo.VertexBuffer(data))
+#         self.program['texture'] = gloo.Texture2D(self.stimulus(t=0.), interpolation=interpolation)
+#         gloo.set_viewport(0, 0, width, height)
+        self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide')
+        # scale and center image in canvas
+        s = 700. / max(self.image.size)
+        t = 0.5 * (700. - (self.image.size[0] * s)) + 50
+        self.image.transform = STTransform(scale=(s, s), translate=(t, 50))
+        
         self._timer = app.Timer('auto', connect=self.on_timer, start=True)
         self.start = time.time() # use the timer above
         self.fullscreen = fullscreen
         self.show()
 
     def on_key_press(self, event):
-        if event.key == 'F':
+        if event.key == 'Tab':
             fullscreen = not self.fullscreen
             self.fullscreen = fullscreen
 
     def on_resize(self, event):
-        width, height = event.physical_size
-        gloo.set_viewport(0, 0, width, height)
+        #width, height = event.physical_size
+        #gloo.set_viewport(0, 0, width, height)
+        # Set canvas viewport and reconfigure visual transforms to match.
+        vp = (0, 0, self.physical_size[0], self.physical_size[1])
+        self.context.set_viewport(*vp)
+        self.image.transforms.configure(canvas=self, viewport=vp)
 
     def on_draw(self, event):
         gloo.clear(color=True, depth=True)
+#         self.program.draw('triangle_strip')
+        self.image.draw()
+
+    def on_timer(self, event):
         t = time.time()-self.start
         if t  < self.timeline.max():
 #             width, height = self.physical_size
-            self.program['texture'][...] = self.stimulus(t) # (255 * self.stimulus(t)).astype(np.uint8)
-            self.program.draw('triangle_strip')
+#             self.program['texture'][...] = self.stimulus(t) # (255 * self.stimulus(t)).astype(np.uint8)
+            self.image.set_data(self.stimulus(t))#.astype(np.uint8))
         else:
             self.close()
-
-    def on_timer(self, event):
         self.update()
 
 if __name__ == '__main__':
@@ -106,11 +121,13 @@ if __name__ == '__main__':
 
     def noise(t, W=W, H=H):
         # Image to be displayed
-        I = np.random.uniform(0, 1, (W, H)).astype(np.float32)
+        I = np.random.uniform(0, 1, (W, H, 3)).astype(np.float32)
         return I
 
     fps, T = 100, 10
     #screen = Canvas(checkerboard, timeline=np.linspace(0, T, T*fps))
     screen = Canvas(noise, timeline=np.linspace(0, T, T*fps))
+    screen.measure_fps()
     screen.app.run()
+    screen.app.quit()
 
