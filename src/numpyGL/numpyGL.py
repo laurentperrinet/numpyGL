@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     def noise(t, W=W, H=H):
         # Image to be displayed
-        I = np.random.uniform(0, 1, (W, H, 3)).astype(np.float32)
+        I = np.random.uniform(0, 1, (H, W, 3)).astype(np.float32)
 #         I = np.random.uniform(0, 1, (W, H)).astype(np.float32)
         
         return I
