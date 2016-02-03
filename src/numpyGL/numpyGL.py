@@ -22,9 +22,13 @@ from vispy import gloo
 # A simple texture quad
 data = np.zeros(4, dtype=[('a_position', np.float32, 2),
                           ('a_texcoord', np.float32, 2)])
-data['a_position'] = np.array([[-1, -1], [+1, -1], [-1, +1], [+1, +1]])
-data['a_texcoord'] = np.array([[1, 0], [1, 1.], [0, 0], [0, 1.]])
 
+W, H = 1920, 1200
+W, H = 16, 10
+#data['a_position'] = np.array([[0, 0], [W, 0], [0, H], [W, H]])
+data['a_position'] = np.array([[-W/H, -1], [+W/H, -1], [-W/H, +1], [+W/H, +1]])
+#data['a_position'] = np.array([[-1, -1], [+1, -1], [-1, +1], [+1, +1]])
+data['a_texcoord'] = np.array([[1, 0], [1, 1.], [0, 0], [0, 1.]])
 
 vertex = """
     attribute vec2 a_position;
@@ -52,7 +56,7 @@ class Canvas(app.Canvas):
     camera take will occur.
     """
     def __init__(self, stimulus, 
-            fullscreen=True, interpolation='linear',
+            fullscreen=True, interpolation='nearest', #'linear',
             timeline=np.linspace(0, 4, 4*30), keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
         self.timeline = timeline
@@ -61,9 +65,6 @@ class Canvas(app.Canvas):
         width, height = self.physical_size
         self.program = gloo.Program(vertex, fragment, count=4)
         self.program.bind(gloo.VertexBuffer(data))
-        #self.program['a_position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
-        #self.program['a_texcoord'] = [(1, 1), (1, 0), (0, 1), (0, 0)]
-        #self.program['texture'] = self.stimulus(t=0.)
         self.program['texture'] = gloo.Texture2D(self.stimulus(t=0.), interpolation=interpolation)
         gloo.set_viewport(0, 0, width, height)
         self._timer = app.Timer('auto', connect=self.on_timer, start=True)
@@ -85,7 +86,7 @@ class Canvas(app.Canvas):
         t = time.time()-self.start
         if t  < self.timeline.max():
             width, height = self.physical_size
-            self.program['texture'][...] = (255 * self.stimulus(t)).astype(np.uint8)
+            self.program['texture'][...] = self.stimulus(t) # (255 * self.stimulus(t)).astype(np.uint8)
             self.program.draw('triangle_strip')
         else:
             self.close()
@@ -103,7 +104,13 @@ if __name__ == '__main__':
         polarity = np.sign(np.sin(2*np.pi*t*freq))
         return ((2*grid-1)*polarity +1) /2
 
+    def noise(t, W=W, H=H):
+        # Image to be displayed
+        I = np.random.uniform(0, 1, (W, H)).astype(np.float32)
+        return I
+
     fps, T = 100, 10
-    screen = Canvas(checkerboard, timeline=np.linspace(0, T, T*fps))
+    #screen = Canvas(checkerboard, timeline=np.linspace(0, T, T*fps))
+    screen = Canvas(noise, timeline=np.linspace(0, T, T*fps))
     screen.app.run()
 
