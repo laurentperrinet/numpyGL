@@ -22,59 +22,50 @@ from vispy import visuals
 from vispy.visuals.transforms import STTransform
 #--------------------------------------------------------------------------
 # A simple texture quad
-data = np.zeros(4, dtype=[('a_position', np.float32, 2),
-                          ('a_texcoord', np.float32, 2)])
 
 W, H = 1920, 1200
-W, H = 16, 10
-#data['a_position'] = np.array([[0, 0], [W, 0], [0, H], [W, H]])
-#data['a_position'] = np.array([[-W/H, -1], [+W/H, -1], [-W/H, +1], [+W/H, +1]])
-data['a_position'] = np.array([[-1, -1], [+1, -1], [-1, +1], [+1, +1]])
-data['a_texcoord'] = np.array([[1, 0], [1, 1.], [0, 0], [0, 1.]])
-
-vertex = """
-    attribute vec2 a_position;
-    attribute vec2 a_texcoord;
-    varying vec2 v_texcoord;
-    void main()
-    {
-        gl_Position = vec4(a_position, 0.0, 1.0);
-        v_texcoord = a_texcoord;
-    }
-"""
-
-fragment = """
-    uniform sampler2D texture;
-    varying vec2 v_texcoord;
-    void main()
-    {
-        gl_FragColor = texture2D(texture, v_texcoord);
-    }
-"""
-
+# W, H = 16, 10
 class Canvas(app.Canvas):
     """
     The client initializes and updates the display where stimulations and
     camera take will occur.
+
+    Parameters
+    ----------
+    
+    cmap : str | ColorMap
+        Colormap to use for luminance images.
+    clim : str | tuple
+        Limits to use for the colormap. Can be 'auto' to auto-set bounds to
+        the min and max of the data.
+    interpolation : str
+        Selects method of image interpolation. Makes use of the two Texture2D
+        interpolation methods and the available interpolation methods defined
+        in vispy/gloo/glsl/misc/spatial_filters.frag
+            * 'nearest': Default, uses 'nearest' with Texture2D interpolation.
+            * 'bilinear': uses 'linear' with Texture2D interpolation.
+            * 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'bicubic',
+                'catrom', 'mitchell', 'spline16', 'spline36', 'gaussian',
+                'bessel', 'sinc', 'lanczos', 'blackman'
+                
     """
     def __init__(self, stimulus, 
             fullscreen=True, interpolation='nearest', #'linear',
             vsync=True, #False,
+            cmap='grays', 
+            clim=(0, 1),
             timeline=np.linspace(0, 4, 4*30), keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
         self.timeline = timeline
         app.use_app('pyglet')
         super(Canvas, self).__init__(keys=keys, title=title, size = (H, W), vsync=vsync)
-#         width, height = self.physical_size
-#         self.program = gloo.Program(vertex, fragment, count=4)
-#         self.program.bind(gloo.VertexBuffer(data))
-#         self.program['texture'] = gloo.Texture2D(self.stimulus(t=0.), interpolation=interpolation)
-#         gloo.set_viewport(0, 0, width, height)
-        self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide')
+#                 ImageVisual data. Can be shape (M, N), (M, N, 3), or (M, N, 4).
+        self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide', clim=clim, cmap=cmap)
         # scale and center image in canvas
-        s = 700. / max(self.image.size)
-        t = 0.5 * (700. - (self.image.size[0] * s)) + 50
-        self.image.transform = STTransform(scale=(s, s), translate=(t, 50))
+        s = H / max(self.image.size) 
+        h = 0.5 * (H - (self.image.size[0] * s)) #+ 50
+        w = 0.5 * (W - (self.image.size[1] * s)) #+ 50
+        self.image.transform = STTransform(scale=(s, s), translate=(h, w))
         
         self._timer = app.Timer('auto', connect=self.on_timer, start=True)
         self.start = time.time() # use the timer above
@@ -87,8 +78,6 @@ class Canvas(app.Canvas):
             self.fullscreen = fullscreen
 
     def on_resize(self, event):
-        #width, height = event.physical_size
-        #gloo.set_viewport(0, 0, width, height)
         # Set canvas viewport and reconfigure visual transforms to match.
         vp = (0, 0, self.physical_size[0], self.physical_size[1])
         self.context.set_viewport(*vp)
@@ -96,14 +85,11 @@ class Canvas(app.Canvas):
 
     def on_draw(self, event):
         gloo.clear(color=True, depth=True)
-#         self.program.draw('triangle_strip')
         self.image.draw()
 
     def on_timer(self, event):
         t = time.time()-self.start
         if t  < self.timeline.max():
-#             width, height = self.physical_size
-#             self.program['texture'][...] = self.stimulus(t) # (255 * self.stimulus(t)).astype(np.uint8)
             self.image.set_data(self.stimulus(t))#.astype(np.uint8))
         else:
             self.close()
@@ -122,6 +108,8 @@ if __name__ == '__main__':
     def noise(t, W=W, H=H):
         # Image to be displayed
         I = np.random.uniform(0, 1, (W, H, 3)).astype(np.float32)
+#         I = np.random.uniform(0, 1, (W, H)).astype(np.float32)
+        
         return I
 
     fps, T = 100, 10
