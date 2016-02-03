@@ -85,7 +85,7 @@ class Canvas(app.Canvas):
         gloo.clear(color=True, depth=True)
         t = time.time()-self.start
         if t  < self.timeline.max():
-            width, height = self.physical_size
+#             width, height = self.physical_size
             self.program['texture'][...] = self.stimulus(t) # (255 * self.stimulus(t)).astype(np.uint8)
             self.program.draw('triangle_strip')
         else:
