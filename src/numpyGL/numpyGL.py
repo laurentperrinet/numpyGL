@@ -51,13 +51,15 @@ class Canvas(app.Canvas):
             cmap='grays', 
             W=1920, H=1200, # screen's size # TODO : retrieve automatically
             clim=(0, 1),
-            timeline=np.linspace(0, 4, 4*30), keys='interactive', title='welcome to numpyGL'):
+            T_max=4., fps=30, 
+            keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
-        self.timeline = timeline
+        self.T_max = T_max
+#         self.fps = fps
         app.use_app('pyglet')
         #print (self.physical_size)
         #H, W = self.physical_size
-        super(Canvas, self).__init__(keys=keys, title=title, size = (H, W), vsync=vsync)
+        super(Canvas, self).__init__(keys=keys, title=title, size = (W, H), vsync=vsync)
 #                 ImageVisual data. Can be shape (M, N), (M, N, 3), or (M, N, 4).
         self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide', clim=clim, cmap=cmap)
         # scale and center image in canvas
@@ -67,7 +69,7 @@ class Canvas(app.Canvas):
         w = 0#.5 * W #(W - (self.image.size[1] * s))
         self.image.transform = STTransform(scale=(s, s), translate=(h, w))
         
-        self._timer = app.Timer('auto', connect=self.on_timer, start=True)
+        self._timer = app.Timer(1./fps, connect=self.on_timer, start=True)
         self.start = time.time() # use the timer above
         self.fullscreen = fullscreen
         self.show()
@@ -81,6 +83,7 @@ class Canvas(app.Canvas):
                 self._timer.stop()
             else:
                 self._timer.start()
+
     def on_resize(self, event):
         # Set canvas viewport and reconfigure visual transforms to match.
         vp = (0, 0, self.physical_size[0], self.physical_size[1])
@@ -93,7 +96,7 @@ class Canvas(app.Canvas):
 
     def on_timer(self, event):
         t = time.time()-self.start
-        if t  < self.timeline.max():
+        if t  < self.T_max:
             self.image.set_data(self.stimulus(t))#.astype(np.uint8))
         else:
             self.close()
@@ -117,9 +120,8 @@ if __name__ == '__main__':
         
         return I
 
-    fps, T = 100, 10
     #screen = Canvas(checkerboard, timeline=np.linspace(0, T, T*fps))
-    screen = Canvas(noise, timeline=np.linspace(0, T, T*fps))
+    screen = Canvas(noise, fps=60)
     screen.measure_fps()
     screen.app.run()
     screen.app.quit()
