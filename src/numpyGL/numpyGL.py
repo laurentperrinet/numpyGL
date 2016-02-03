@@ -15,6 +15,7 @@ __licence__ = 'BSD licence'
 
 import numpy as np
 import time
+import pyglet
 
 from vispy import app
 from vispy import gloo, keys
@@ -72,6 +73,7 @@ class Canvas(app.Canvas):
         self._timer = app.Timer(1./fps, connect=self.on_timer, start=True)
         self.start = time.time() # use the timer above
         self.fullscreen = fullscreen
+        self.native.set_mouse_visible(False)
         self.show()
 
     def on_key_press(self, event):
@@ -103,7 +105,7 @@ class Canvas(app.Canvas):
         self.update()
 
 if __name__ == '__main__':
-    W, H = 16, 10
+    W, H = 160, 100
 
     def checkerboard(t, freq=8., grid_num=8, grid_size=4):
         row_even = grid_num // 2 * [0, 1]
