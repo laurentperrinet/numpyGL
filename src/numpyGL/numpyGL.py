@@ -17,14 +17,10 @@ import numpy as np
 import time
 
 from vispy import app
-from vispy import gloo
+from vispy import gloo, keys
 from vispy import visuals
 from vispy.visuals.transforms import STTransform
 #--------------------------------------------------------------------------
-# A simple texture quad
-
-W, H = 1920, 1200
-# W, H = 16, 10
 class Canvas(app.Canvas):
     """
     The client initializes and updates the display where stimulations and
@@ -53,18 +49,22 @@ class Canvas(app.Canvas):
             fullscreen=True, interpolation='nearest', #'linear',
             vsync=True, #False,
             cmap='grays', 
+            W=1920, H=1200, # screen's size # TODO : retrieve automatically
             clim=(0, 1),
             timeline=np.linspace(0, 4, 4*30), keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
         self.timeline = timeline
         app.use_app('pyglet')
+        #print (self.physical_size)
+        #H, W = self.physical_size
         super(Canvas, self).__init__(keys=keys, title=title, size = (H, W), vsync=vsync)
 #                 ImageVisual data. Can be shape (M, N), (M, N, 3), or (M, N, 4).
         self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide', clim=clim, cmap=cmap)
         # scale and center image in canvas
-        s = H / max(self.image.size) 
-        h = 0.5 * (H - (self.image.size[0] * s)) #+ 50
-        w = 0.5 * (W - (self.image.size[1] * s)) #+ 50
+        s_W, s_h = self.image.size
+        s = H / s_h 
+        h = 0#.5 * H # (H - (self.image.size[0] * s))
+        w = 0#.5 * W #(W - (self.image.size[1] * s))
         self.image.transform = STTransform(scale=(s, s), translate=(h, w))
         
         self._timer = app.Timer('auto', connect=self.on_timer, start=True)
@@ -76,7 +76,11 @@ class Canvas(app.Canvas):
         if event.key == 'Tab':
             fullscreen = not self.fullscreen
             self.fullscreen = fullscreen
-
+        if event.key is keys.SPACE:
+            if self._timer.running:
+                self._timer.stop()
+            else:
+                self._timer.start()
     def on_resize(self, event):
         # Set canvas viewport and reconfigure visual transforms to match.
         vp = (0, 0, self.physical_size[0], self.physical_size[1])
@@ -96,6 +100,7 @@ class Canvas(app.Canvas):
         self.update()
 
 if __name__ == '__main__':
+    W, H = 16, 10
 
     def checkerboard(t, freq=8., grid_num=8, grid_size=4):
         row_even = grid_num // 2 * [0, 1]
