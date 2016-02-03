@@ -26,8 +26,8 @@ data = np.zeros(4, dtype=[('a_position', np.float32, 2),
 W, H = 1920, 1200
 W, H = 16, 10
 #data['a_position'] = np.array([[0, 0], [W, 0], [0, H], [W, H]])
-data['a_position'] = np.array([[-W/H, -1], [+W/H, -1], [-W/H, +1], [+W/H, +1]])
-#data['a_position'] = np.array([[-1, -1], [+1, -1], [-1, +1], [+1, +1]])
+#data['a_position'] = np.array([[-W/H, -1], [+W/H, -1], [-W/H, +1], [+W/H, +1]])
+data['a_position'] = np.array([[-1, -1], [+1, -1], [-1, +1], [+1, +1]])
 data['a_texcoord'] = np.array([[1, 0], [1, 1.], [0, 0], [0, 1.]])
 
 vertex = """
@@ -61,7 +61,7 @@ class Canvas(app.Canvas):
         self.stimulus = stimulus
         self.timeline = timeline
         app.use_app('pyglet')
-        super(Canvas, self).__init__(keys=keys, title=title)
+        super(Canvas, self).__init__(keys=keys, title=title, size = (H, W))
         width, height = self.physical_size
         self.program = gloo.Program(vertex, fragment, count=4)
         self.program.bind(gloo.VertexBuffer(data))
