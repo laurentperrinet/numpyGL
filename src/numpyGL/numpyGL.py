@@ -5,7 +5,7 @@
 A simple framework to display numpy array on a screen. And only that.
 
 Heavily based on https://github.com/vispy/vispy/blob/master/examples/tutorial/gloo/textured_quad.py
-by Nicolas Rougier and more example scripts in the vispy documentation.
+by Nicolas Rougier and more example scripts from the vispy documentation.
 
 """
 from __future__ import division, print_function, absolute_import
@@ -29,7 +29,7 @@ class Canvas(app.Canvas):
 
     Parameters
     ----------
-    
+
     cmap : str | ColorMap
         Colormap to use for luminance images.
     clim : str | tuple
@@ -44,15 +44,15 @@ class Canvas(app.Canvas):
             * 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'bicubic',
                 'catrom', 'mitchell', 'spline16', 'spline36', 'gaussian',
                 'bessel', 'sinc', 'lanczos', 'blackman'
-                
+
     """
-    def __init__(self, stimulus, 
+    def __init__(self, stimulus,
             fullscreen=True, interpolation='nearest', #'linear',
             vsync=True, #False,
-            cmap='grays', 
+            cmap='grays',
             W=1920, H=1200, # screen's size # TODO : retrieve automatically
             clim=(0, 1),
-            T_max=4., fps=30, 
+            T_max=4., fps=30,
             keys='interactive', title='welcome to numpyGL'):
         self.stimulus = stimulus
         self.T_max = T_max
@@ -65,11 +65,10 @@ class Canvas(app.Canvas):
         self.image = visuals.ImageVisual(self.stimulus(t=0.), interpolation=interpolation, method='subdivide', clim=clim, cmap=cmap)
         # scale and center image in canvas
         s_W, s_h = self.image.size
-        s = H / s_h 
+        s = H / s_h
         h = 0#.5 * H # (H - (self.image.size[0] * s))
         w = 0#.5 * W #(W - (self.image.size[1] * s))
         self.image.transform = STTransform(scale=(s, s), translate=(h, w))
-        
         self._timer = app.Timer(1./fps, connect=self.on_timer, start=True)
         self.start = time.time() # use the timer above
         self.fullscreen = fullscreen
@@ -119,7 +118,6 @@ if __name__ == '__main__':
         # Image to be displayed
         I = np.random.uniform(0, 1, (H, W, 3)).astype(np.float32)
 #         I = np.random.uniform(0, 1, (W, H)).astype(np.float32)
-        
         return I
 
     #screen = Canvas(checkerboard, timeline=np.linspace(0, T, T*fps))
